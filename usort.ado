@@ -129,14 +129,14 @@ program def _sort, sclass
 		   (., .a, ..., .z) if the `ignorem` option is specified.            */
 		if `"`first'"' != "" {
 			loc  f      = lower(ustrregexrf(`"`first'"',					///
-								".+,\s*([ustr]*regex[m]*|[ustr]*pos)*$", "$1"))
+								".+,\s*([ustr]*regex[m]*|[ustr]*pos)$", "$1"))
 						if `"`f'"' == lower(`"`first'"'    ) loc f "strmatch"
 						else if  ustrregexm("`f'",  "regex") loc f "ustrregexm"
 						else if  ustrregexm("`f'", "[r]pos") loc f "ustrrpos"
 						else if  ustrregexm("`f'",    "pos") loc f "ustrpos"
 						if "`ignorec'" != ""                 loc t "ustrlower"
 			loc  first  =   `t'(ustrregexrf(`"`first'"',					///
-								",\s*([ustr]*regex[m]*|[ustr]*pos)$",      ""))
+								",\s*([ustr]*regex[m]*|[ustr]*pos)$",     ""))
 			forv     i  = 1(1)  `: word count `first''       {
 				loc  w  : word  `i'                                  of `first'
 				mata:              st_local("i", "0"                      * ///
@@ -159,14 +159,14 @@ program def _sort, sclass
 		   (., .a, ..., .z) if the `ignorem` option is specified.            */
 		if  `"`last'"' != "" {
 			loc  f      = lower(ustrregexrf( `"`last'"',					///
-								".+,\s*([ustr]*regex[m]*|[ustr]*pos)*$", "$1"))
+								".+,\s*([ustr]*regex[m]*|[ustr]*pos)$", "$1"))
 						if `"`f'"' == lower( `"`last'"'    ) loc f "strmatch"
 						else if  ustrregexm("`f'",  "regex") loc f "ustrregexm"
 						else if  ustrregexm("`f'", "[r]pos") loc f "ustrrpos"
 						else if  ustrregexm("`f'",    "pos") loc f "ustrpos"
 						if "`ignorec'" != ""                 loc t "ustrlower"
 			loc   last  =   `t'(ustrregexrf(  `"`last'"',					///
-								",\s*([ustr]*regex[m]*|[ustr]*pos)$",      ""))
+								",\s*([ustr]*regex[m]*|[ustr]*pos)$",     ""))
 			forv     i  =         `: word count `last''(-1)1 {
 				loc  w  : word  `=`: word count `last'' - `i'  + 1' of  `last'
 				mata:              st_local("i", "0"                      * ///

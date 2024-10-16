@@ -196,6 +196,10 @@ store interim results in a temporary file.
 only:{p_end}
 {phang2}{cmd:. usort -mpg -price if ! foreign}
 
+{title:Acknowledgements}
+{pstd}
+A special thanks to Leonardo Guizzetti for requesting and testing this program.
+
 {title:Author}
 
 {pstd}
