@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.1.2  07oct2024}{...}
+{* *! version 1.1.3  31oct2024}{...}
 {viewerjumpto "Syntax" "usort##syntax"}{...}
 {viewerjumpto "Description" "usort##description"}{...}
 {viewerjumpto "Methods and formulas" "usort##methods"}{...}

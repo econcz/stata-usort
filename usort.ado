@@ -1,4 +1,4 @@
-*! version 1.1.2  07oct2024  I I Bolotov
+*! version 1.1.3  31oct2024  I I Bolotov
 program def usort, sclass byable(onecall)
 	version 14
 	/*
@@ -15,6 +15,8 @@ program def usort, sclass byable(onecall)
 	*/
 	// syntax                                                                   
 	qui desc
+	// check for the number of observations and variable limits                 
+	if ! _N  exit 0
 	if c(maxvar) - r(k) < 2 error 900
 	****
 	tempfile tmpf
@@ -35,6 +37,8 @@ program def usort, sclass byable(onecall)
 			qui  append  using  `tmpf',     force
 		}    /* Do sort on the by- and sortvars to set the data-sorted flag. */
 		qui drop         `byid'
+	}
+	if       "`_byvars'`s(varlist)'" != ""            {
 		/* Save each sortvar into a string (`svl`) or numeric (`nvl`) macro. */
 		foreach  var of  varl `_byvars'  `s(varlist)' {
 			cap conf str var  `var'
@@ -54,11 +58,11 @@ program def usort, sclass byable(onecall)
 			                   ( `p' #        J(1,ustrwordcount("`nvl'"),1)));;
 		sort `_byvars'  `s(varlist)'				   // sort and add the flag 
 		if ("`svl'" != "") {
-			mata:  _collate(`s', `p'); st_sstore(.,       tokens("`svl'"), `s')
+			mata:                      st_sstore(.,       tokens("`svl'"), `s')
 			mata: mata drop `s'                        // minimize memory usage 
 		}
 		if ("`nvl'" != "") {
-			mata:  _collate(`n', `p');  st_store(.,       tokens("`nvl'"), `n')
+			mata:                       st_store(.,       tokens("`nvl'"), `n')
 			mata: mata drop `n'                        // minimize memory usage 
 		}
 		sret loc  varlist   ""						   // drop the sclass macro 
@@ -84,6 +88,8 @@ program def _sort, sclass
 			         invtokens( "`sign'" :+  tokens(st_global("r(varlist)")) ))
 		mata:         st_local("varlist",  st_local("varlist" ) + " "     + ///
 			                                        st_global("r(varlist)"))
+		mata:        st_global("s(varlist)",                                ///
+			                                         st_local("varlist"))
 	}
 	loc anything    "`signlist'"
 	if ("`mfirst'" != ""                          )  & "`ignorem'" == ""	///
@@ -136,12 +142,12 @@ program def _sort, sclass
 						else if  ustrregexm("`f'", "[r]pos") loc f "ustrrpos"
 						else if  ustrregexm("`f'",    "pos") loc f "ustrpos"
 						if "`ignorec'" != ""                 loc t "ustrlower"
-			loc  first  =   `t'(ustrregexrf(`"`first'"',					///
+			loc  wrds   =   `t'(ustrregexrf(`"`first'"',					///
 								",\s*([ustr]*regex[m]*|[ustr]*pos)$",     ""))
-			forv     i  = 1(1)  `: word count `first''       {
-				loc  w  : word  `i'                                  of `first'
+			forv     i  = 1(1)  `: word count `wrds''        {
+				loc  w  : word  `i'                                  of `wrds'
 				mata:              st_local("i", "0"                      * ///
-				(max(strlen(tokens(st_local("first")))) - strlen("`i'" )) + ///
+				(max(strlen(tokens(st_local("wrds"))))  - strlen("`i'" )) + ///
 					/* natural sorting requires leading zeros */ "`i'" )
 				qui  replace    `var' = " "                * `s' +			///
 																`"`i'"'		///
@@ -166,12 +172,12 @@ program def _sort, sclass
 						else if  ustrregexm("`f'", "[r]pos") loc f "ustrrpos"
 						else if  ustrregexm("`f'",    "pos") loc f "ustrpos"
 						if "`ignorec'" != ""                 loc t "ustrlower"
-			loc   last  =   `t'(ustrregexrf(  `"`last'"',					///
+			loc   wrds  =   `t'(ustrregexrf(  `"`last'"',					///
 								",\s*([ustr]*regex[m]*|[ustr]*pos)$",     ""))
-			forv     i  =         `: word count `last''(-1)1 {
-				loc  w  : word  `=`: word count `last'' - `i'  + 1' of  `last'
+			forv     i  =         `: word count `wrds''(-1)1 {
+				loc  w  : word  `=`: word count `wrds'' - `i'  + 1' of  `wrds'
 				mata:              st_local("i", "0"                      * ///
-				(max(strlen(tokens(st_local( "last")))) - strlen("`i'" )) + ///
+				(max(strlen(tokens(st_local("wrds"))))  - strlen("`i'" )) + ///
 					/* natural sorting requires leading zeros */ "`i'" )
 				qui  replace    `var' = uchar(`codepoint') * `s' +			///
 																`"`i'"'		///
